@@ -18,7 +18,7 @@ jobs:
         id: setup-ndk
         with:
           ndk-version: r26
-          add-to-path: true
+          add-to-path: false
           local-cache: true
 
       - name: 安装 Go
