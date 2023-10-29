@@ -28,7 +28,7 @@ jobs:
 
       - name: 克隆 Tailscale
         run: |
-          git clone https://gitlab.com/tailscale/tailscale
+          git clone https://github.com/tailscale/tailscale
 
       - name: 编译 Tailscale
         env:
