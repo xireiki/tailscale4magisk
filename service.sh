@@ -11,9 +11,7 @@ LOG_FILE="${PKGVAR}/tailscaled.stdout.log"
 STATE_FILE="${PKGVAR}/tailscaled.state"
 SOCKET_FILE="${PKGVAR}/tailscaled.sock"
 
-SERVICE_COMMAND="${MODDIR}/bin/tailscaled \
---state=${STATE_FILE} \
---socket=${SOCKET_FILE}
+SERVICE_COMMAND="${MODDIR}/bin/tailscaled --state=${STATE_FILE} --socket=${SOCKET_FILE}"
 
 wait_until_login(){
   # in case of /data encryption is disabled
@@ -78,17 +76,18 @@ if [ ! -e /dev/net/tun ]; then
   fi
 fi
 
-if [ -x "${MODDIR}/bin/tailscaled" -a -x "${MODDIR}/bin/start-stop-status" ]; then
-  ${MODDIR}/bin/start-stop-status start
-  if ! daemon_status; do
-    start_daemon
-  done
+if [ -x "${MODDIR}/bin/tailscaled" ]; then
+  if [ -x "${MODDIR}/bin/start-stop-status" ]; then
+    ${MODDIR}/bin/start-stop-status start
+  fi
+  sleep 5
+  if [ -z "$(pidof tailscaled)" ]; then
+    nohup ${MODDIR}/bin/tailscaled --state="${MODDIR}/src/tailscaled.state" > ${LOG_FILE} &
+  fi
 else
   sed -i "6cdescription=[tailscaled 核心不存在]${DES}" ${MODDIR}/module.prop
   exit 1
 fi
-
-sleep 5
 
 if ! ${MODDIR}/bin/start-stop-status status; then
   sed -i "6cdescription=[tailscaled 核心启动失败]${DES}" ${MODDIR}/module.prop
@@ -106,7 +105,14 @@ nohup ${MODDIR}/bin/tailscale web > ${MODDIR}/src/web.log 2>&1 &
 status=$(${MODDIR}/bin/tailscale status > /dev/null 2>&1; echo $?)
 while [ "${status}" = "1" ]; do
   status=$(${MODDIR}/bin/tailscale status > /dev/null 2>&1; echo $?)
+  if [ -z "$(pidof tailscaled)" ]; then
+    status=0
+  fi
   sleep 1
 done
 
-sed -i "6cdescription=[管理地址:${listen},已登录]${DES}" ${MODDIR}/module.prop
+if [ -z "$(pidof tailscaled)" ]; then
+  sed -i "6cdescription=[核心启动失败]${DES}" ${MODDIR}/module.prop
+else
+  sed -i "6cdescription=[管理地址:${listen},已登录]${DES}" ${MODDIR}/module.prop
+fi
