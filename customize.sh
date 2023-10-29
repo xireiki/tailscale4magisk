@@ -5,7 +5,7 @@ if [ "${ARCH}" != "arm64" ] ; then
 fi
 
 if [ -f "/data/adb/modules/tailscale/src/tailscaled.state" ]; then
-  ui_print "检测到 state，正在保存"
+  ui_print "- 检测到 state，已保存"
   cp "/data/adb/modules/tailscale/src/tailscaled.state" ${MODPATH}/src
 fi
 

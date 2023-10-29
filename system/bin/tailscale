@@ -1,5 +1,6 @@
 #!/bin/sh
 
-binary=$(find /data/adb -path '*/tailscale/bin/tailscale')
+MODDIR="/data/adb/modules/tailscale"
 
-exec ${binrary} "${@}"
+cd "${MODDIR}/src"
+exec "${MODDIR}/bin/tailscale" "$@"
