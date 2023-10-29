@@ -13,21 +13,46 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set tag_name
+      - name: 设置 tag_name
         env:
           DATE: ${{ steps.date.outputs.date }}
         run: |
           echo "tag_name=b${{ github.ref_name }}_${DATE}" >> $GITHUB_ENV
 
+      - name: 安装 NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26
+          add-to-path: false
+          local-cache: true
+
+      - name: 安装 Go
+        uses: actions/setup-go@v4.1.0
+        with:
+          go-version: 1.21.2
+
+      - name: 克隆 Tailscale
+        run: |
+          git clone https://github.com/tailscale/tailscale
+
+      - name: 编译 Tailscale
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cd tailscale
+          go install tailscale.com/cmd/tailscale{,d}
+          CC=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
+          CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscale
+          CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscaled
+          cp tailscale tailscaled ../bin
+
+      - name: 清理
+        run: |
+          rm -rf tailscale
+
       - name: Run build.sh
         run: sh build.sh ${{ env.tag_name }}
-
-      - name: Tag Repo
-        uses: richardsimko/update-tag@v1
-        with:
-          tag_name: ${{ env.tag_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Prerelease
         uses: softprops/action-gh-release@v1

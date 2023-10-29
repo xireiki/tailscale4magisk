@@ -51,14 +51,14 @@ jobs:
       - name: 上传 tailscale
         uses: actions/upload-artifact@v3
         with:
-          name: tailscale
+          name: tailscale_binrary
           path: |
-            tailscale/tailscale
-            tailscale/tailscaled
+            bin/tailscale
+            bin/tailscaled
 
       - name: 上传模块
         uses: actions/upload-artifact@v3
         with:
-          name: Tailscale
+          name: Tailscale4Magisk
           path: |
             tailscale_*.zip
