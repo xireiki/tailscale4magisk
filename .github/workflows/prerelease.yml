@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tag:
-      _ "b*"
+      - "b*"
 
 jobs:
   build:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name Set tag_name
+      - name: Set tag_name
         env:
           DATE: ${{ steps.date.outputs.date }}
         run: |

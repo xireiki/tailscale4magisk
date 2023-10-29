@@ -37,8 +37,8 @@ jobs:
           cd tailscale
           go install tailscale.com/cmd/tailscale{,d}
           CC=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
-          CGO_ENABLED=1 CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscale
-          CGO_ENABLED=1 CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscaled
+          CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscale
+          CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscaled
           cp tailscale tailscaled ../bin
 
       - name: 清理
