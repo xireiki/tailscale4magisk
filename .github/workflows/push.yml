@@ -1,0 +1,64 @@
+name: push
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - ".github"
+      - "README.md"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: 安装 NDK
+        uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26
+          add-to-path: true
+          local-cache: true
+
+      - name: 安装 Go
+        uses: actions/setup-go@v4.1.0
+        with:
+          go-version: 1.21.2
+
+      - name: 克隆 Tailscale
+        run: |
+          git clone https://gitlab.com/tailscale/tailscale
+
+      - name: 编译 Tailscale
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          go install tailscale.com/cmd/tailscale{,d}
+          CC=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
+          cd tailscale
+          CGO_ENABLED=1 CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscale
+          CGO_ENABLED=1 CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscaled
+          cp tailscale tailscaled ../bin
+
+      - name: 清理
+        run: |
+          rm -rf tailscale
+
+      - name: 打包 Magisk 模块
+        run: sh build.sh
+
+      - name: 上传 tailscale
+        uses: actions/upload-artifact@v3
+        with:
+          name: tailscale
+          path: |
+            tailscale/tailscale
+            tailscale/tailscaled
+
+      - name: 上传模块
+        uses: actions/upload-artifact@v3
+        with:
+          name: Tailscale
+          path: |
+            tailscale_*.zip

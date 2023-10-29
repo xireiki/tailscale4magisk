@@ -1,0 +1,5 @@
+#!/bin/sh
+
+binary=$(find /data/adb -path '*/tailscale/bin/tailscale')
+
+exec ${binrary} "${@}"
