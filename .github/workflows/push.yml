@@ -34,9 +34,9 @@ jobs:
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
+          cd tailscale
           go install tailscale.com/cmd/tailscale{,d}
           CC=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
-          cd tailscale
           CGO_ENABLED=1 CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscale
           CGO_ENABLED=1 CC=${CC} GOARCH=arm64 GOOS=android ./build_dist.sh tailscale.com/cmd/tailscaled
           cp tailscale tailscaled ../bin

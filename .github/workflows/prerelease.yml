@@ -3,9 +3,6 @@ name: prerelease
 on:
   workflow_dispatch:
   push:
-    paths-ignore:
-      - ".github"
-      - "README.md"
     tag:
       _ "b*"
 
