@@ -60,5 +60,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Tailscale4Magisk
+          zip-content: false
           path: |
             tailscale_*.zip

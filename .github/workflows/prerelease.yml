@@ -1,9 +1,8 @@
 name: prerelease
 
 on:
-  workflow_dispatch:
   push:
-    tag:
+    tags:
       - "b*"
 
 jobs:
