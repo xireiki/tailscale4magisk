@@ -4,6 +4,16 @@ DES="使用 tailscale 进行组网，不与 tun 冲突，可同连接 tun 代理
 listen="localhost:8088"
 export PWD="${MODDID}/src"
 cd "${MODDIR}/src"
+SERVICE_NAME="tailscale"
+PKGVAR="${MODDIR}/src"
+PID_FILE="${PKGVAR}/tailscaled.pid"
+LOG_FILE="${PKGVAR}/tailscaled.stdout.log"
+STATE_FILE="${PKGVAR}/tailscaled.state"
+SOCKET_FILE="${PKGVAR}/tailscaled.sock"
+
+SERVICE_COMMAND="${MODDIR}/bin/tailscaled \
+--state=${STATE_FILE} \
+--socket=${SOCKET_FILE}
 
 wait_until_login(){
   # in case of /data encryption is disabled
@@ -26,7 +36,33 @@ wait_until_login(){
   rm "$test_file"
 }
 
+start_daemon() {
+  local ts=$(date --iso-8601=second)
+  echo "${ts} Starting ${SERVICE_NAME} with: ${SERVICE_COMMAND}" >${LOG_FILE}
+  STATE_DIRECTORY=${PKGVAR} ${SERVICE_COMMAND} 2>&1 | sed -u '1,200p;201s,.*,[further tailscaled logs suppressed],p;d' >>${LOG_FILE} &
+  # We pipe tailscaled's output to sed, so "$!" retrieves the PID of sed not tailscaled.
+  # Use jobs -p to retrieve the PID of the most recent process group leader.
+  jobs -p >"${PID_FILE}"
+}
+
+daemon_status() {
+  if [ -r "${PID_FILE}" ]; then
+    local PID=$(cat "${PID_FILE}")
+    if ps -o pid -p ${PID} > /dev/null; then
+        return
+    fi
+    rm -f "${PID_FILE}" >/dev/null
+  fi
+  return 1
+}
+
 wait_until_login
+
+if [ -e "${MODDIR}/src/start.sock" ]; then
+  exit
+else
+  touch "${MODDIR}/src/start.sock"
+fi
 
 chmod 700 ${MODDIR}/bin/tailscaled ${MODDIR}/bin/tailscale ${MODDIR}/bin/start-stop-status
 
@@ -44,6 +80,9 @@ fi
 
 if [ -x "${MODDIR}/bin/tailscaled" -a -x "${MODDIR}/bin/start-stop-status" ]; then
   ${MODDIR}/bin/start-stop-status start
+  if ! daemon_status; do
+    start_daemon
+  done
 else
   sed -i "6cdescription=[tailscaled 核心不存在]${DES}" ${MODDIR}/module.prop
   exit 1
