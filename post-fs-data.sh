@@ -1,6 +1,5 @@
-#!/bin/sh
+#!/system/bin/sh
 MODDIR=${0%/*}
-
-rm ${MODDIR}/src/tailscaled.pid
-rm ${MODDIR}/src/tailscaled.sock
-rm ${MODDIR}/src/start.sock
+rm -f ${MODDIR}/src/start
+rm -f ${MODDIR}/src/tailscaled.pid
+rm -f ${MODDIR}/src/tailscaled.sock
