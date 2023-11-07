@@ -1,6 +1,6 @@
 {
-    "version": "v1.0.0",
+    "version": "v1.0.0-beta.4",
     "versionCode": 2023102921,
-    "zipUrl": "https://github.com/xireiki/tailscale/releases/download/v1.0.0/tailscale_v1.0.0.zip",
+    "zipUrl": "https://github.com/xireiki/tailscale/releases/download/v1.0.0-beta.4/tailscale_v1.0.0-beta.4.zip",
     "changelog": "https://raw.githubusercontent.com/xireiki/tailscale/main/changelog.md"
 }

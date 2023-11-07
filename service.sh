@@ -1,6 +1,6 @@
 #!/bin/sh
 MODDIR=${0%/*}
-DES="使用 tailscale 进行组网，不与 tun 冲突，可同连接 tun 代理，tproxy 自行测试。"
+DES="使用 tailscale 进行组网。"
 listen="localhost:8088"
 SERVICE_NAME="tailscale"
 PKGVAR="${MODDIR}/src"
