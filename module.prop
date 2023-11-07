@@ -1,7 +1,7 @@
 id=tailscale
 name=Tailscale
 version=v1.0.0-beta.4
-versionCode=20231108
+versionCode=2023110800
 author=xireiki
 description=[管理地址：127.0.0.1:8088]使用 tailscale 进行组网，不与 tun 冲突。
 updateJson=https://raw.githubusercontent.com/xireiki/tailscale4magisk/main/tailscale.json
